@@ -36,6 +36,7 @@ DeepDTA-PyTorch/
 ---
 
 ## 🚀 快速开始
+
 ### 1. 安装依赖
 ```bash
 pip install torch numpy pandas scikit-learn biopython tqdm
