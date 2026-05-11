@@ -1,94 +1,179 @@
-# DeepDTA-PyTorch
-PyTorch 完整复现 | DeepDTA 药物-靶点亲和力预测模型
+# DeepDTA-PyTorch 学习复现
 
-## 📚 项目介绍
-本项目是论文 **DeepDTA: Deep Drug-Target Affinity Prediction** 的 PyTorch 完整复现，
-使用双 CNN 结构分别对药物 SMILES 序列和蛋白质序列进行特征提取，实现高精度药物-靶点亲和力预测。
+本项目为 DeepDTA 模型的 PyTorch 学习复现版本，主要用于理解药物—靶标亲和力预测任务、双分支 CNN 模型结构以及深度学习实验流程。
 
-项目支持 DAVIS、KIBA 两大标准数据集，实现一键自动训练、自动保存最优模型、自动输出绘图日志，完全可复现论文实验结果。
+项目基于 DeepDTA 论文中的模型思想，使用 PyTorch 搭建模型，并在 Davis 和 KIBA 数据集上完成了数据加载、模型训练、日志记录、指标曲线绘制和模型参数保存等流程。
 
----
-
-## ✨ 核心功能
-* ✅ 1:1 复现原论文 DeepDTA 双 CNN 模型结构
-* ✅ 支持 DAVIS + KIBA 双数据集自动顺序训练
-* ✅ 自动计算 CI 指数（论文核心评价指标）
-* ✅ 自动保存最优模型权重文件
-* ✅ 自动输出训练日志（可直接用于论文绘图）
-* ✅ 模块化代码，简洁易懂，便于二次开发
-* ✅ 一键运行，无需手动修改参数
+> 注：本项目主要用于科研训练与模型复现学习，重点在于理解任务背景、模型结构和实验流程，暂未进行深入的模型改进。
 
 ---
 
-## 📂 项目结构
+## 一、任务介绍
+
+DeepDTA 用于预测药物与靶标蛋白之间的结合亲和力，属于回归预测任务。
+
+模型输入包括：
+
+- 药物的 SMILES 序列；
+- 靶标蛋白质的氨基酸序列。
+
+模型输出为：
+
+- 药物—靶标蛋白之间的亲和力预测值。
+
+该任务的核心思路是：将药物序列和蛋白质序列分别编码后输入神经网络，由模型学习二者之间的潜在关系，并输出亲和力预测结果。
+
+---
+
+## 二、模型结构
+
+DeepDTA 模型采用双分支 CNN 结构，分别对药物和蛋白质序列进行特征提取。
+
+整体结构如下：
 
 ```text
-DeepDTA-PyTorch/
-├── data/                  # 数据集文件夹（DAVIS + KIBA）
-├── source/                # 核心代码模块
-│   ├── models/            # DeepDTA 双CNN模型定义
-│   └── utils/             # 数据加载与预处理工具
-├── run_all.py             # 服务器完整实验脚本（自动跑 DAVIS → KIBA）
-├── train.py               # 本地快速验证脚本（小数据集测试）
-└── README.md              # 项目说明文档
+药物 SMILES 序列             蛋白质氨基酸序列
+        ↓                         ↓
+    序列编码                   序列编码
+        ↓                         ↓
+   Embedding 层              Embedding 层
+        ↓                         ↓
+   CNN 特征提取              CNN 特征提取
+        ↓                         ↓
+        药物特征      +      蛋白质特征
+                  ↓
+              特征拼接
+                  ↓
+              全连接层
+                  ↓
+           亲和力预测值
+```
+
+模型主要包括以下部分：
+
+1. 药物分支：输入药物 SMILES 序列，通过 embedding 和 CNN 提取药物特征；
+2. 蛋白质分支：输入蛋白质氨基酸序列，通过 embedding 和 CNN 提取蛋白质特征；
+3. 特征融合：将药物特征和蛋白质特征进行拼接；
+4. 回归预测：将拼接后的特征输入全连接层，输出亲和力预测值。
+
+---
+
+## 三、数据集
+
+本项目使用了药物—靶标亲和力预测任务中常用的两个数据集：
+
+- Davis
+- KIBA
+
+数据集中主要包含：
+
+- 药物信息；
+- 靶标蛋白信息；
+- 药物—靶标蛋白对应的亲和力标签。
+
+---
+
+## 四、当前完成情况
+
+目前项目已完成：
+
+- 基于论文结构搭建 DeepDTA 的 PyTorch 版本代码；
+- 完成 Davis 数据集训练流程；
+- 完成 KIBA 数据集训练流程；
+- 保存训练日志；
+- 保存指标曲线；
+- 保存最佳模型参数；
+- 整理实验结果文件。
+
+---
+
+## 五、项目结构
+
+项目主要文件结构如下：
+
+```text
+DeepDTA-pytorch/
+├── data/                       # 数据集相关文件
+├── source/                     # 源代码文件
+│   ├── models/                 # 模型结构
+│   └── utils/                  # 数据处理与工具函数
+├── results/                    # 实验结果
+│   ├── davis/
+│   │   ├── davis_metrics.png
+│   │   ├── train_log_davis.txt
+│   │   └── deepdta_best_davis.pth
+│   └── kiba/
+│       ├── kiba_metrics.png
+│       ├── train_log_kiba.txt
+│       └── deepdta_best_kiba.pth
+├── run_all.py                  # 完整训练脚本
+├── train.py                    # 训练脚本
+├── experiment_log.md           # 实验记录
+└── README.md
 ```
 
 ---
 
-## 🚀 快速开始
+## 六、实验结果
 
-### 1. 安装依赖
+实验日志、指标曲线和模型参数保存在 `results/` 文件夹中。
 
-```bash
-pip install torch numpy pandas scikit-learn biopython tqdm
-```
+| 数据集 | 训练日志 | 指标曲线 | 最佳模型参数 |
+|---|---|---|---|
+| Davis | `results/davis/train_log_davis.txt` | `results/davis/davis_metrics.png` | `results/davis/deepdta_best_davis.pth` |
+| KIBA | `results/kiba/train_log_kiba.txt` | `results/kiba/kiba_metrics.png` | `results/kiba/deepdta_best_kiba.pth` |
 
-### 2. 运行完整论文实验
+当前结果主要用于验证模型训练流程是否跑通，并帮助理解训练过程中 loss 和评价指标的变化趋势。
+
+---
+
+## 七、运行方式
+
+运行完整训练流程：
 
 ```bash
 python run_all.py
 ```
 
-程序将自动执行：
-1. 训练 DAVIS 数据集（100 个 epoch）
-2. 训练 KIBA 数据集（100 个 epoch）
-3. 保存最优模型
-4. 生成绘图日志文件
+也可以根据需要运行单独的训练脚本：
+
+```bash
+python train.py
+```
+
+训练完成后，程序会保存训练日志、指标曲线和模型参数文件。
 
 ---
 
-## 📊 自动生成文件
-运行完成后，项目根目录会生成以下 4 个文件：
-* `deepdta_best_davis.pth`  - DAVIS 最优模型
-* `deepdta_best_kiba.pth`   - KIBA 最优模型
-* `train_log_davis.txt`     - DAVIS 训练日志（Loss/CI）
-* `train_log_kiba.txt`      - KIBA 训练日志（Loss/CI）
+## 八、项目收获
 
-日志文件可直接用 Excel / Origin 绘制论文曲线图。
+通过本项目，我初步熟悉了深度学习模型复现的一般流程，包括：
 
----
+- 阅读论文并梳理模型结构；
+- 理解药物 SMILES 序列和蛋白质序列的输入形式；
+- 使用 PyTorch 搭建双分支 CNN 模型；
+- 完成数据加载、模型训练、测试和结果保存流程；
+- 整理训练日志、指标曲线和实验记录；
+- 使用 GitHub 管理科研代码和实验结果。
 
-## 🎯 评价指标
-项目实现原论文核心评估指标：
-* CI (Concordance Index)
-* MSE (Mean Squared Error)
-* 5 折交叉验证
+本项目帮助我对深度学习模型复现、科研代码整理和实验记录有了更直观的理解，也为后续继续学习图神经网络和生物医学建模方法打下基础。
 
 ---
 
-## 📝 使用说明
-* `run_all.py`：服务器端完整实验（推荐）
-* `train.py`：本地快速验证环境与代码正确性
+## 九、项目不足与后续计划
+
+当前项目主要是学习复现性质，重点在于理解 DeepDTA 的模型结构和实验流程，暂未进行深入的模型改进。
+
+后续计划包括：
+
+1. 进一步理解并注释数据加载、模型结构和训练流程代码；
+2. 对 Davis 和 KIBA 数据集上的实验结果进行更细致的分析；
+3. 学习图神经网络相关方法；
+4. 尝试将药物从 SMILES 序列表示拓展为分子图结构表示；
+5. 对比序列建模方法和图结构建模方法在药物—靶标亲和力预测任务中的效果差异。
 
 ---
 
-## 🔗 原论文
-[DeepDTA: Deep Drug-Target Affinity Prediction](https://academic.oup.com/bioinformatics/article/34/17/i821/5093245)
+## 十、项目定位
 
----
-
-## ✅ 项目亮点
-* 完全可复现
-* 代码规范、注释清晰
-* 开箱即用，无需配置
-* 适合科研复现、课程设计、学习使用
+本项目是本科阶段科研训练中的学习复现项目，主要目的是通过复现经典模型，掌握深度学习建模任务的基本流程，包括数据处理、模型搭建、训练验证、结果记录和代码管理等环节。

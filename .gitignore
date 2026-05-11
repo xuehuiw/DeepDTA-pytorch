@@ -1,7 +1,3 @@
-# 模型和日志文件（可选，如需保留可注释）
-*.pth
-train_log_*.txt
-
 # Python 缓存
 __pycache__/
 *.py[cod]

@@ -14,21 +14,21 @@ class DeepDTA(nn.Module):
     ):
         super(DeepDTA, self).__init__()
         
-        # ===================== 药物分支 CNN =====================
+        # 药物分支嵌入层
         self.embed_smi = nn.Embedding(vocab_smi, embed_dim)
-        
+        # 药物分支 CNN
         self.smi_conv1 = nn.Conv1d(embed_dim, num_filters, 4)
         self.smi_conv2 = nn.Conv1d(num_filters, num_filters*2, 8)
         self.smi_conv3 = nn.Conv1d(num_filters*2, num_filters*3, 12)
         
-        # ===================== 蛋白分支 CNN =====================
+        # 蛋白分支嵌入层
         self.embed_pro = nn.Embedding(vocab_pro, embed_dim)
-        
+        # 蛋白分支 CNN
         self.pro_conv1 = nn.Conv1d(embed_dim, num_filters, 8)
         self.pro_conv2 = nn.Conv1d(num_filters, num_filters*2, 12)
         self.pro_conv3 = nn.Conv1d(num_filters*2, num_filters*3, 16)
         
-        # ===================== 全连接层 =====================
+        # 全连接层
         self.fc1 = nn.Linear(num_filters*3 * 2, 1024)
         self.fc2 = nn.Linear(1024, 1024)
         self.fc3 = nn.Linear(1024, 512)
